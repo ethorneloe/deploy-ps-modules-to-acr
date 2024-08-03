@@ -81,12 +81,16 @@ function Deploy-PsModulesToAcr {
 
     # Publish modules to ACR
     foreach ($validModule in $validModules) {
-        try {
 
+        try {
             if ($PSCmdlet.ShouldProcess("Azure Container Registry", "Publish Module")) {
+
+                $moduleName = $validModule.Name
+                $moduleVersion = $validModule.Version
+                $path = $validModule.Path
                 Write-Information "Publishing $moduleName v$moduleVersion to $acrName"
                 $publishPSResourceSplat = @{
-                    Path       = $validModule.FullName
+                    Path       = $path
                     Repository = $acrName
                 }
                 Publish-PSResource @publishPSResourceSplat

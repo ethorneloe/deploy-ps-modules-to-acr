@@ -71,7 +71,7 @@ jobs:
             done
 
             # Generate a unique ACR name with a random six-digit number
-            random=$(openssl rand -base64 25 | tr -dc 'a-z0-9' | cut -c1-6)
+            random=$($RANDOM | md5sum | head -c 6)
             acrName="deploypsmodulestoacr$random"
 
             echo "Creating ACR named $acrName"
