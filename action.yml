@@ -22,9 +22,9 @@ runs:
         # Execute main function
 
         $acrName = '${{ inputs.acrname }}'
-        $acrLoginServer = az acr show --name $acrName --resource-group $resourceGroupName --query loginServer --output tsv
         $moduleSourcePath = '${{ inputs.module-source-path }}'
         $resourceGroupName = '${{ inputs.resource-group-name }}'
+        $acrLoginServer = az acr show --name $acrName --resource-group $resourceGroupName --query loginServer --output tsv
 
         # Configure function params
         $params = @{
