@@ -32,7 +32,7 @@ jobs:
 
       - name: Update Az.Accounts module
         run: |
-          Install-PSResource Az.Accounts -TrustRepository -Confirm:$false -Scope AllUsers
+          Install-PSResource Az.Accounts -TrustRepository -Confirm:$false
         shell: pwsh
 
       - name: Pester test main powershell function
