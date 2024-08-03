@@ -77,7 +77,7 @@ jobs:
 
             resourceGroupName='${{ secrets.RESOURCE_GROUP_NAME }}'
             location='${{ secrets.LOCATION }}'
-            $acrName='${{ steps.generate-acr-name.outputs.acrname }}'
+            acrName='${{ steps.generate-acr-name.outputs.acrname }}'
 
             # Clear out any existing temporary ACRs
             az acr list --resource-group "$resourceGroupName" --query "[].name" -o tsv | while read acrName
