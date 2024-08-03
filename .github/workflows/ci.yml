@@ -57,7 +57,7 @@ jobs:
           $acrName = "deploypsmodulestoacr$random6Digits"
           Write-Output "acrname=$acrName" >> $env:GITHUB_OUTPUT
 
-          Get-InstalledPSResource Az*
+          Get-module -ListAvailable
 
         shell: pwsh
 
