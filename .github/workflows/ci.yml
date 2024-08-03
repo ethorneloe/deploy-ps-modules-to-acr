@@ -1,0 +1,140 @@
+name: PowerShell Composite Action CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "**/powershell/functions/**/*.ps1"
+      - "**/powershell/tests/*.ps1"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "**/powershell/functions/**/*.ps1"
+      - "**/powershell/tests/*.ps1"
+      - ".github/workflows/ci.yml"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    environment: actions-testing
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pester test main powershell function
+        run: |
+          # Test main function
+          $mainFunction = Get-ChildItem -Path "${{ github.workspace }}/powershell/functions/main" -filter "*.ps1"
+          $mainFunctionBaseName = $mainFunction.BaseName
+          $pesterTestFullName = "${{ github.workspace }}/powershell/tests/$mainFunctionBaseName.Tests.ps1"
+
+          Invoke-Pester -Path $pesterTestFullName -Output Detailed
+
+        shell: pwsh
+
+      - name: Authenticate to azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.CLIENT_ID}}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+
+      - name: Create and register temp ACR
+        id: create-temp-acr
+        uses: azure/powershell@v2
+        with:
+          inlineScript: |
+            # Create and register temp ACR
+
+            # Clear out any existing temp ACRs
+            Get-AzContainerRegistry -ResourceGroupName $ResourceGroupName | Remove-AzContainerRegistry -Confirm:$False
+
+            # Generate an acr name with random number
+            $random = Get-Random -Minimum 000000 -Maximum 999999
+            $acrName = "deploypsmodulestoacr$random"
+
+            $ResourceGroupName = '${{ secrets.RESOURCE_GROUP_NAME }}'
+            $Location = '${{ secrets.LOCATION }}'
+
+            # Create the ACR
+            $newAzContainerRegistrySplat = @{
+                ResourceGroupName = $ResourceGroupName
+                Name = $acrName
+                Sku = 'Basic'
+                Location = $Location
+            }
+            $registry = New-AzContainerRegistry @newAzContainerRegistrySplat
+
+            # Create a local PSResourceRepository for the temp ACR
+            $tempAcr = Get-AzContainerRegistry -Name $acrName -ResourceGroupName $ResourceGroupName
+            $acrUrl = "https://$($tempAcr.LoginServer)"
+            Register-PSResourceRepository -Name actionstestingrepo -Uri $acrUrl
+
+            Write-Output "acrname=$acrName" >> $Env:GITHUB_OUTPUT
+
+          azPSVersion: 'latest'
+
+      - name: Run action.yml
+        uses: ./
+        with:
+          acrname: '${{ steps.create-temp-acr.outputs.acrname }}'
+          param2: '${{ github.workspace }}/powershell/tests/test-modules'
+
+      - name: Confirm action.yml performed required tasks
+        uses: azure/powershell@v2
+        with:
+          inlineScript: |
+            $ Confirm modules are present in ACR
+
+            $acrName = '${{ steps.create-temp-acr.outputs.acrname }}'
+
+            # Dot source in all the functions in this action repo
+            $functions = Get-ChildItem -Path '${{ github.workspace }}/powershell/functions' -Recurse -Filter "*.ps1"
+            $functions | ForEach-Object {
+              . $_.FullName
+            }
+
+            # Get the valid modules configured in this repo
+            $validModules = Get-ValidModules -moduleSourcePath '${{ github.workspace }}/powershell/tests/test-modules'
+
+            # Confirm the modules were uploaded to the ACR using the PSResourceRepository pointing to the temp ACR
+            foreach($validModule in $validModules) {
+              $moduleName = $validModule.Name
+              $moduleVersion = $validModule.Version
+
+              try {
+                Find-PSResource -Name $moduleName -Version $moduleVersion -Repository $acrName
+              }
+              catch {
+                throw "$moduleName was not found in the ACR repo."
+              }
+            }
+
+          azPSVersion: 'latest'
+
+      - name: Remove the temp ACR
+        uses: azure/powershell@v2
+        if: always()
+        with:
+          inlineScript: |
+            # Remove temp ACR
+
+            $resourceGroupName = '${{ secrets.RESOURCE_GROUP_NAME }}'
+            $acrName = '${{ steps.create-temp-acr.outputs.acrname }}'
+
+            if( !([string]::IsNullOrEmpty($acrName)) ){
+              Remove-AzContainerRegistry -ResourceGroupName $ResourceGroupName  -Name $acrName -Confirm:$false
+            }
+
+          azPSVersion: 'latest'
+
+
+

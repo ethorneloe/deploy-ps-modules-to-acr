@@ -1,0 +1,43 @@
+name: "deploy-ps-modules-to-acr"
+
+description: "Discovers the powershell modules within your GitHub repo and deploys them to a Azure Container Registry using the version set in the .psd1 files"
+
+inputs:
+  acrname:
+    description: "The name of your Azure Container Registry"
+    required: true
+  module-source-path:
+    description: "Path within your git repo containing your powershell module folder(s)"
+    required: false
+    default: ${{ github.workspace }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Upload Modules to ACR
+      run: |
+        # Execute main function
+
+        # Configure function params
+        $params = @{
+            acrName= '${{ inputs.acrname }}'
+            moduleSourcePath = '${{ inputs.moduleSourcePath }}'
+        }
+
+        # Dot source in all the functions in this action repo
+        $functions = Get-ChildItem -Path '${{ github.action_path }}/powershell/functions' -Recurse -Filter "*.ps1"
+        $functions | ForEach-Object {
+          . $_.FullName
+        }
+
+        # Extract the main function and execute
+        $mainFunction = Get-ChildItem -Path '${{ github.action_path }}/powershell/functions/main' -Filter "*.ps1"
+        $mainFunctionBaseName = $mainFunction | Select-Object -ExpandProperty BaseName
+        $output = & $mainFunctionBaseName @params -InformationAction Continue
+        $output | ConvertTo-Json
+
+      shell: pwsh
+
+branding:
+  icon: "arrow-up-circle"
+  color: "blue"
