@@ -21,7 +21,7 @@ runs:
         # Configure function params
         $params = @{
             acrName= '${{ inputs.acrname }}'
-            moduleSourcePath = '${{ inputs.moduleSourcePath }}'
+            moduleSourcePath = '${{ inputs.module-source-path }}'
         }
 
         # Dot source in all the functions in this action repo
