@@ -10,6 +10,9 @@ inputs:
     description: "Path within your git repo containing your powershell module folder(s)"
     required: false
     default: ${{ github.workspace }}
+  resource-group-name:
+    description: "Path within your git repo containing your powershell module folder(s)"
+    required: true
 
 runs:
   using: "composite"
