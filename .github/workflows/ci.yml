@@ -115,7 +115,7 @@ jobs:
                 Find-PSResource -Name $moduleName -Version $moduleVersion -Repository $acrName
               }
               catch {
-                throw "$moduleName was not found in the ACR repo."
+                throw "$moduleName was not found in the ACR repo - $_"
               }
             }
 
