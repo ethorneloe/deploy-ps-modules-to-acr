@@ -30,11 +30,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Update Az.Accounts module
-        run: |
-          Install-PSResource Az.Accounts -TrustRepository -Confirm:$false
-        shell: pwsh
-
       - name: Pester test main powershell function
         run: |
           # Test main function
@@ -61,6 +56,8 @@ jobs:
           $random6Digits = -join (('0123456789abcdefghijklmnopqrstuvwxyz').ToCharArray() | Get-Random -Count 6)
           $acrName = "deploypsmodulestoacr$random6Digits"
           Write-Output "acrname=$acrName" >> $env:GITHUB_OUTPUT
+
+          Get-InstalledPSResource Az*
 
         shell: pwsh
 
