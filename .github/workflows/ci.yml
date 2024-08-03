@@ -89,6 +89,7 @@ jobs:
         with:
           acrname: '${{ steps.create-temp-acr.outputs.acrname }}'
           module-source-path: '${{ github.workspace }}/powershell/tests/test-modules'
+          resource-group-name: '${{ secrets.RESOURCE_GROUP_NAME }}'
 
       - name: Confirm action.yml performed required tasks
         uses: azure/powershell@v2
