@@ -93,7 +93,7 @@ jobs:
         uses: azure/powershell@v2
         with:
           inlineScript: |
-            $ Confirm modules are present in ACR
+            # Confirm modules are present in ACR
 
             $acrName = '${{ steps.create-temp-acr.outputs.acrname }}'
 
