@@ -99,8 +99,8 @@ function Deploy-PsModulesToAcr {
         catch {
             throw "Unable to complete deployment for module $moduleName. $_"
         }
-
-        $outputObject.validModules = $validModules
-        return $outputObject
     }
+
+    $outputObject.validModules = $validModules
+    return $outputObject
 }

@@ -121,19 +121,19 @@ jobs:
 
           azPSVersion: 'latest'
 
-      - name: Remove temp ACR
-        if: always()
-        uses: azure/cli@v2
-        with:
-          azcliversion: latest
-          inlineScript: |
-            # Remove temp ACR
+      #- name: Remove temp ACR
+      #  if: always()
+      #  uses: azure/cli@v2
+      #  with:
+      #    azcliversion: latest
+      #    inlineScript: |
+      #      # Remove temp ACR
 
-            az acr list --resource-group "$resourceGroupName" --query "[].name" -o tsv | while read acrName
-            do
-              echo "Deleting $acrName"
-              az acr delete --name "$acrName" --resource-group "$resourceGroupName" --yes
-            done
+      #      az acr list --resource-group "$resourceGroupName" --query "[].name" -o tsv | while read acrName
+      #      do
+      #        echo "Deleting $acrName"
+      #        az acr delete --name "$acrName" --resource-group "$resourceGroupName" --yes
+      #      done
 
 
 
