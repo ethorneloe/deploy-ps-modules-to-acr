@@ -57,7 +57,11 @@ jobs:
           $acrName = "deploypsmodulestoacr$random6Digits"
           Write-Output "acrname=$acrName" >> $env:GITHUB_OUTPUT
 
-          Get-module -ListAvailable
+          Get-InstalledPSResource
+
+          write-host "All USers"
+
+          Get-InstalledPSResource -scope AllUsers
 
         shell: pwsh
 
