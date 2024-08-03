@@ -32,7 +32,7 @@ jobs:
         uses: ethorneloe/deploy-ps-modules-to-acr@v1
         with:
           acrname: 'exampleacr'
-          resource-group-name" 'example-resource-group'
+          resource-group-name: 'example-resource-group'
           module-source-path: "./powershell/modules"
 ```
 
