@@ -54,7 +54,8 @@ function Deploy-PsModulesToAcr {
         Version    = '1.1.0'
     }
 
-    $previewVersion = Get-PSResource -Name 'Microsoft.PowerShell.PSResourceGet' | Where-Object { $_.Prerelease -eq 'preview1' -and $_.Version.toString() -eq '1.1.0' }
+
+    $previewVersion = Get-PSResource -Name 'Microsoft.PowerShell.PSResourceGet' | Where-Object { $_.Prerelease -eq 'preview1' -and $_.Version.toString() -eq '1.1.0' } -ErrorAction SilentlyContinue
     if ( !($previewVersion)) {
         Write-Information "Installing Microsoft.PowerShell.PSResourceGet v1.1.0 preview1"
         Install-PSResource @installPSResourceSplat -TrustRepository -WhatIf:$false
