@@ -8,12 +8,14 @@ on:
       - "**/powershell/functions/**/*.ps1"
       - "**/powershell/tests/*.ps1"
       - ".github/workflows/ci.yml"
+      - "action.yml"
   pull_request:
     branches: [main]
     paths:
       - "**/powershell/functions/**/*.ps1"
       - "**/powershell/tests/*.ps1"
       - ".github/workflows/ci.yml"
+      - "action.yml"
 
 permissions:
   id-token: write
