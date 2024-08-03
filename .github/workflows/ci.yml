@@ -55,7 +55,7 @@ jobs:
           # Generate acr name
           $random6Digits = -join (('0123456789abcdefghijklmnopqrstuvwxyz').ToCharArray() | Get-Random -Count 6)
           $acrName = "deploypsmodulestoacr$random6Digits"
-          Write-Output "acrname=$acrName" >> $Env:GITHUB_OUTPUT
+          Write-Output "acrname=$acrName" >> $env:GITHUB_OUTPUT
 
         shell: pwsh
 
@@ -72,7 +72,7 @@ jobs:
 
             resourceGroupName='${{ secrets.RESOURCE_GROUP_NAME }}'
             location='${{ secrets.LOCATION }}'
-            $acrName = '${{ steps.generate-acr-name.outputs.acrname }}'
+            $acrName='${{ steps.generate-acr-name.outputs.acrname }}'
 
             # Clear out any existing temporary ACRs
             az acr list --resource-group "$resourceGroupName" --query "[].name" -o tsv | while read acrName
