@@ -54,15 +54,15 @@ jobs:
           inlineScript: |
             # Create and register temp ACR
 
+            $ResourceGroupName = '${{ secrets.RESOURCE_GROUP_NAME }}'
+            $Location = '${{ secrets.LOCATION }}'
+
             # Clear out any existing temp ACRs
             Get-AzContainerRegistry -ResourceGroupName $ResourceGroupName | Remove-AzContainerRegistry -Confirm:$False
 
             # Generate an acr name with random number
             $random = Get-Random -Minimum 000000 -Maximum 999999
             $acrName = "deploypsmodulestoacr$random"
-
-            $ResourceGroupName = '${{ secrets.RESOURCE_GROUP_NAME }}'
-            $Location = '${{ secrets.LOCATION }}'
 
             # Create the ACR
             $newAzContainerRegistrySplat = @{
