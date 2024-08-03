@@ -40,11 +40,11 @@ jobs:
 Changes to your custom Powershell script modules need to be deployed to an `acr` (Azure Container Registry) based on the `ModuleVersion` set in the .psd1 files of the modules. For example, internally developed PowerShell modules that are required to be kept as internal or private repos, and these need to be available for use by other Azure resources such as Azure functions or container apps jobs on the same private vnet as the `acr`.  These Azure resources can then pull down the versioned module using a managed identity and rbac using `Install-PSResource`.
 
 # Requirements
-- An Azure subscription with a storage account and blob container configured.
-- An app registration or identity with write access to the blob container specified.
+- An Azure subscription with an acr configured.
+- An app registration or identity with write access to publish to the acr.
 - One or more Powershell script modules contained in a directory within your repo. Currently only script modules that are defined as folders with .psm1 and .psd1 files are supported, and the .psd1 must use valid module manifest format. More info on manifest files can be found [here](https://learn.microsoft.com/en-us/powershell/scripting/developer/module/how-to-write-a-powershell-module-manifest?view=powershell-7.4)
-- Your GitHub workflow already contains the `actions/checkout` and `azure/login` steps as shown in the example.
-- If you are using a storage account with private endpoint then make sure you configure your workflow to specify an appropriate runner or runner group.
+- Your GitHub workflow already contains the `actions/checkout` and `azure/login` steps as shown in the example, with `enable-AzPSSession` set to true.
+- If you are using an acr with private endpoint then make sure you configure your workflow to specify an appropriate runner or runner group.
 
 # Inputs
 ## acrname
