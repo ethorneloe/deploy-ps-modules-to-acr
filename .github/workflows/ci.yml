@@ -55,7 +55,7 @@ jobs:
         with:
           azcliversion: latest
           inlineScript: |
-            # Create and register temp ACR
+            # Create and register temp azure container registry
 
             # Set output to none to suppress unnecessary CLI output
             export AZURE_CORE_OUTPUT=none
@@ -90,50 +90,46 @@ jobs:
           resource-group-name: '${{ secrets.RESOURCE_GROUP_NAME }}'
 
       - name: Confirm action.yml performed required tasks
-        uses: azure/powershell@v2
+        run: |
+          # Confirm modules are present in ACR
+
+          $acrName = '${{ steps.create-temp-acr.outputs.acrname }}'
+
+          # Dot source in all the functions in this action repo
+          $functions = Get-ChildItem -Path '${{ github.workspace }}/powershell/functions' -Recurse -Filter "*.ps1"
+          $functions | ForEach-Object {
+            . $_.FullName
+          }
+
+          # Get the valid modules configured in this repo
+          $validModules = Get-ValidModules -moduleSourcePath '${{ github.workspace }}/powershell/tests/test-modules'
+
+          # Confirm the modules were uploaded to the ACR using the PSResourceRepository pointing to the temp ACR
+          foreach($validModule in $validModules) {
+            $moduleName = $validModule.Name
+            $moduleVersion = $validModule.Version
+            try {
+              Find-PSResource -Name $moduleName -Version $moduleVersion -Repository $acrName
+            }
+            catch {
+              throw "$moduleName was not found in the ACR repo - $_"
+            }
+          }
+
+        shell: pwsh
+
+      - name: Remove temp ACR
+        if: always()
+        uses: azure/cli@v2
         with:
+          azcliversion: latest
           inlineScript: |
-            # Confirm modules are present in ACR
-
-            $acrName = '${{ steps.create-temp-acr.outputs.acrname }}'
-
-            # Dot source in all the functions in this action repo
-            $functions = Get-ChildItem -Path '${{ github.workspace }}/powershell/functions' -Recurse -Filter "*.ps1"
-            $functions | ForEach-Object {
-              . $_.FullName
-            }
-
-            # Get the valid modules configured in this repo
-            $validModules = Get-ValidModules -moduleSourcePath '${{ github.workspace }}/powershell/tests/test-modules'
-
-            # Confirm the modules were uploaded to the ACR using the PSResourceRepository pointing to the temp ACR
-            foreach($validModule in $validModules) {
-              $moduleName = $validModule.Name
-              $moduleVersion = $validModule.Version
-
-              try {
-                Find-PSResource -Name $moduleName -Version $moduleVersion -Repository $acrName
-              }
-              catch {
-                throw "$moduleName was not found in the ACR repo - $_"
-              }
-            }
-
-          azPSVersion: 'latest'
-
-      #- name: Remove temp ACR
-      #  if: always()
-      #  uses: azure/cli@v2
-      #  with:
-      #    azcliversion: latest
-      #    inlineScript: |
-      #      # Remove temp ACR
-
-      #      az acr list --resource-group "$resourceGroupName" --query "[].name" -o tsv | while read acrName
-      #      do
-      #        echo "Deleting $acrName"
-      #        az acr delete --name "$acrName" --resource-group "$resourceGroupName" --yes
-      #      done
+            # Remove temp ACR
+            az acr list --resource-group "$resourceGroupName" --query "[].name" -o tsv | while read acrName
+            do
+              echo "Deleting $acrName"
+              az acr delete --name "$acrName" --resource-group "$resourceGroupName" --yes
+            done
 
 
 
