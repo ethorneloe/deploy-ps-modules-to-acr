@@ -36,6 +36,9 @@ function Deploy-PsModulesToAcr {
         [string]$acrName,
 
         [Parameter(Mandatory = $true)]
+        [string]$acrLoginServer,
+
+        [Parameter(Mandatory = $true)]
         [string]$resourceGroupName
     )
 
@@ -66,7 +69,6 @@ function Deploy-PsModulesToAcr {
     if ($PSCmdlet.ShouldProcess("PSResourceRepository", "Create if not present for ACR")) {
 
         # Create a local PSResourceRepository for the ACR if it doesn't already exist
-        $acrLoginServer = Get-AzContainerRegistry -Name $acrName -ResourceGroupName $resourceGroupName | Select-Object -ExpandProperty LoginServer
         $PSRepositoryHosts = ( Get-PSResourceRepository | Select-Object -ExpandProperty Uri).host
 
         if ($acrLoginServer -notin $PSRepositoryHosts) {

@@ -27,6 +27,7 @@ BeforeAll {
     # Params for the main function calls in each test
     $params = @{
         acrName           = 'acrtest'
+        $acrLoginServer   = 'acrtest'
         moduleSourcePath  = $tempModuleSourcePath
         resourceGroupName = 'rgtest'
     }

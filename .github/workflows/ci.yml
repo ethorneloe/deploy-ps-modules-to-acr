@@ -49,40 +49,38 @@ jobs:
           subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
           enable-AzPSSession: true
 
-      - name: Create and register temp ACR
+      - name: Create temp ACR
         id: create-temp-acr
-        uses: azure/powershell@v2
+        uses: azure/cli@v2
         with:
+          azcliversion: latest
           inlineScript: |
             # Create and register temp ACR
 
-            $ResourceGroupName = '${{ secrets.RESOURCE_GROUP_NAME }}'
-            $Location = '${{ secrets.LOCATION }}'
+            # Set output to none to suppress unnecessary CLI output
+            export AZURE_CORE_OUTPUT=none
 
-            # Clear out any existing temp ACRs
-            Get-AzContainerRegistry -ResourceGroupName $ResourceGroupName | Remove-AzContainerRegistry -Confirm:$False
+            resourceGroupName='${{ secrets.RESOURCE_GROUP_NAME }}'
+            location='${{ secrets.LOCATION }}'
 
-            # Generate an acr name with random number
-            $random = Get-Random -Minimum 000000 -Maximum 999999
-            $acrName = "deploypsmodulestoacr$random"
+            # Clear out any existing temporary ACRs
+            az acr list --resource-group "$resourceGroupName" --query "[].name" -o tsv | while read acrName
+            do
+              echo "Deleting $acrName"
+              az acr delete --name "$acrName" --resource-group "$resourceGroupName" --yes
+            done
 
-            # Create the ACR
-            $newAzContainerRegistrySplat = @{
-                ResourceGroupName = $ResourceGroupName
-                Name = $acrName
-                Sku = 'Basic'
-                Location = $Location
-            }
-            $registry = New-AzContainerRegistry @newAzContainerRegistrySplat
+            # Generate a unique ACR name with a random six-digit number
+            random=$(openssl rand -base64 25 | tr -dc 'a-z0-9' | cut -c1-6)
+            acrName="deploypsmodulestoacr$random"
 
-            # Create a local PSResourceRepository for the temp ACR
-            $tempAcr = Get-AzContainerRegistry -Name $acrName -ResourceGroupName $ResourceGroupName
-            $acrUrl = "https://$($tempAcr.LoginServer)"
-            Register-PSResourceRepository -Name actionstestingrepo -Uri $acrUrl
+            echo "Creating ACR named $acrName"
+            az acr create --resource-group "$resourceGroupName" --name "$acrName" --sku Basic --location "$location"
+            loginServer=$(az acr show --name "$acrName" --resource-group "$resourceGroupName" --query loginServer --output tsv)
 
-            Write-Output "acrname=$acrName" >> $Env:GITHUB_OUTPUT
-
-          azPSVersion: 'latest'
+            # Output the ACR name and login server for use in subsequent steps
+            echo "acrname=$acrName" >> $GITHUB_OUTPUT
+            echo "loginserver=$loginServer" >> $GITHUB_OUTPUT
 
       - name: Run action.yml
         uses: ./
@@ -96,20 +94,6 @@ jobs:
         with:
           inlineScript: |
             $ Confirm modules are present in ACR
-
-            # Install Az modules
-            $AzContainerRegistrySplat = @{
-                Repository = 'PSGallery'
-                Name       = 'Az.ContainerRegistry'
-            }
-
-            $azContainerRegistryModule = Get-InstalledPSResource -Name 'Microsoft.PowerShell.PSResourceGet' -ErrorAction SilentlyContinue | Where-Object { $_.Prerelease -eq 'preview1' -and $_.Version.toString() -eq '1.1.0' }
-            if ( !($azContainerRegistryModule)) {
-                Write-Information "Installing Az.ContainerRegistry"
-                Install-PSResource @AzContainerRegistrySplat -TrustRepository -WhatIf:$false
-            }
-
-            Import-Module Az.ContainerRegistry
 
             $acrName = '${{ steps.create-temp-acr.outputs.acrname }}'
 
@@ -137,21 +121,19 @@ jobs:
 
           azPSVersion: 'latest'
 
-      - name: Remove the temp ACR
-        uses: azure/powershell@v2
+      - name: Remove temp ACR
         if: always()
+        uses: azure/cli@v2
         with:
+          azcliversion: latest
           inlineScript: |
             # Remove temp ACR
 
-            $resourceGroupName = '${{ secrets.RESOURCE_GROUP_NAME }}'
-            $acrName = '${{ steps.create-temp-acr.outputs.acrname }}'
-
-            if( !([string]::IsNullOrEmpty($acrName)) ){
-              Remove-AzContainerRegistry -ResourceGroupName $ResourceGroupName  -Name $acrName -Confirm:$false
-            }
-
-          azPSVersion: 'latest'
+            az acr list --resource-group "$resourceGroupName" --query "[].name" -o tsv | while read acrName
+            do
+              echo "Deleting $acrName"
+              az acr delete --name "$acrName" --resource-group "$resourceGroupName" --yes
+            done
 
 
 
