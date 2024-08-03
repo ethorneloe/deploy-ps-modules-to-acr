@@ -22,6 +22,7 @@ runs:
         $params = @{
             acrName= '${{ inputs.acrname }}'
             moduleSourcePath = '${{ inputs.module-source-path }}'
+            resourceGroupName = '${{ inputs.resource-group-name }}'
         }
 
         # Dot source in all the functions in this action repo
