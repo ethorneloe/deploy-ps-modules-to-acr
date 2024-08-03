@@ -46,14 +46,12 @@ function Deploy-PsModulesToAcr {
         validModules     = $null
     }
 
-    # Make sure the latest version of PSResourceGet is available (preview is required as of Aug 2024)
+    # Make sure the latest version of PSResourceGet is available (1.1.0-preview1 is required as of Aug 2024)
     $installPSResourceSplat = @{
         Repository = 'PSGallery'
         Name       = 'Microsoft.PowerShell.PSResourceGet'
-        Prerelease = $true
-        Version    = '1.1.0'
+        Version    = '1.1.0-preview1'
     }
-
 
     $previewVersion = Get-InstalledPSResource -Name 'Microsoft.PowerShell.PSResourceGet' -ErrorAction SilentlyContinue | Where-Object { $_.Prerelease -eq 'preview1' -and $_.Version.toString() -eq '1.1.0' }
     if ( !($previewVersion)) {
