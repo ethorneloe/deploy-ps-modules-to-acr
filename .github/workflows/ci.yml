@@ -49,7 +49,17 @@ jobs:
           subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
           enable-AzPSSession: true
 
-      - name: Create temp ACR
+      - name: Generate name for temp azure container registry
+        id: generate-acr-name
+        run: |
+          # Generate acr name
+          $random6Digits = -join (('0123456789abcdefghijklmnopqrstuvwxyz').ToCharArray() | Get-Random -Count 6)
+          $acrName = "deploypsmodulestoacr$random6Digits"
+          Write-Output "acrname=$acrName" >> $Env:GITHUB_OUTPUT
+
+        shell: pwsh
+
+      - name: Create temp azure container registry
         id: create-temp-acr
         uses: azure/cli@v2
         with:
@@ -62,6 +72,7 @@ jobs:
 
             resourceGroupName='${{ secrets.RESOURCE_GROUP_NAME }}'
             location='${{ secrets.LOCATION }}'
+            $acrName = '${{ steps.generate-acr-name.outputs.acrname }}'
 
             # Clear out any existing temporary ACRs
             az acr list --resource-group "$resourceGroupName" --query "[].name" -o tsv | while read acrName
@@ -70,22 +81,18 @@ jobs:
               az acr delete --name "$acrName" --resource-group "$resourceGroupName" --yes
             done
 
-            # Generate a unique ACR name with a random six-digit number
-            random=$($RANDOM | md5sum | head -c 6)
-            acrName="deploypsmodulestoacr$random"
-
             echo "Creating ACR named $acrName"
             az acr create --resource-group "$resourceGroupName" --name "$acrName" --sku Basic --location "$location"
             loginServer=$(az acr show --name "$acrName" --resource-group "$resourceGroupName" --query loginServer --output tsv)
 
             # Output the ACR name and login server for use in subsequent steps
-            echo "acrname=$acrName" >> $GITHUB_OUTPUT
+
             echo "loginserver=$loginServer" >> $GITHUB_OUTPUT
 
       - name: Run action.yml
         uses: ./
         with:
-          acrname: '${{ steps.create-temp-acr.outputs.acrname }}'
+          acrname: '${{ steps.generate-acr-name.outputs.acrname }}'
           module-source-path: '${{ github.workspace }}/powershell/tests/test-modules'
           resource-group-name: '${{ secrets.RESOURCE_GROUP_NAME }}'
 
@@ -93,7 +100,7 @@ jobs:
         run: |
           # Confirm modules are present in ACR
 
-          $acrName = '${{ steps.create-temp-acr.outputs.acrname }}'
+          $acrName = '${{ steps.generate-acr-name.outputs.acrname }}'
 
           # Dot source in all the functions in this action repo
           $functions = Get-ChildItem -Path '${{ github.workspace }}/powershell/functions' -Recurse -Filter "*.ps1"
