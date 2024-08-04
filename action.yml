@@ -6,13 +6,13 @@ inputs:
   acr-name:
     description: "The name of your Azure Container Registry"
     required: true
+  resource-group-name:
+    description: "Path within your git repo containing your powershell module folder(s)"
+    required: true
   module-source-path:
     description: "Path within your git repo containing your powershell module folder(s)"
     required: false
     default: ${{ github.workspace }}
-  resource-group-name:
-    description: "Path within your git repo containing your powershell module folder(s)"
-    required: true
 
 runs:
   using: "composite"
@@ -30,7 +30,7 @@ runs:
                 Name       = 'Microsoft.PowerShell.PSResourceGet'
                 Version    = '1.1.0-preview1'
             }
-            Install-PSResource @installPSResourceSplat -TrustRepository -WhatIf:$false -Scope CurrentUser
+            Install-PSResource @installPSResourceSplat
         }
 
       shell: pwsh

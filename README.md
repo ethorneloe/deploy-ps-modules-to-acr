@@ -28,11 +28,11 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           enable-AzPSSession: true
 
-      - name: Deploy PowerShell Modules to ACR
+      - name: Deploy PowerShell modules to acr
         uses: ethorneloe/deploy-ps-modules-to-acr@v1
         with:
-          acrname: "exampleacr"
-          resource-group-name: "example-resource-group"
+          acrname: ${{ secrets.AZURE_CONTAINER_REGISTRY_NAME}}
+          resource-group-name: ${{ secrets.AZURE_RESOURCE_GROUP_NAME}}
           module-source-path: "./powershell/modules"
 ```
 
@@ -47,11 +47,11 @@ Changes to your custom Powershell script modules need to be deployed to an `acr`
 - If you are using an acr with private endpoint then make sure you configure your workflow to specify an appropriate runner or runner group.
 
 # Inputs
-## acrname
+## acr-name
 Your Azure Container Registry name
 ```yaml
 with:
-  acrname: 'exampleacr'
+  acr-name: 'exampleacr'
 ```
 
 ## resource-group-name
@@ -65,5 +65,5 @@ with:
 The path within your git repo containing the powershell module folder or folders. If not specified, the default is the `github.workspace` context variable.
 ```yaml
 with:
-  module-source-path: 'your/path'
+  module-source-path: './powershell/modules'
 ```
