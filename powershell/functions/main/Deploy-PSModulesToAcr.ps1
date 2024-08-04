@@ -71,7 +71,6 @@ function Deploy-PsModulesToAcr {
 
             Write-Information "Registering PSResourceRepository for $acrName"
             $acrUrl = "https://$($acrLoginServer)"
-            write-Information $acrUrl
             Register-PSResourceRepository -Name $acrName -Uri $acrUrl
         }
     }
