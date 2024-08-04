@@ -1,25 +1,34 @@
 <#
 .SYNOPSIS
-    Deploys PowerShell modules into an Azure Container Registry.
+    Deploys PowerShell modules to an Azure Container Registry.
 
 .DESCRIPTION
-    This function detects PowerShell module folders in the source path provided and uploads them to an Azure Container Registry.
-    Authentication is already handled by the azure/login action.
+    This function scans the specified source path for PowerShell modules and uploads them to a specified Azure Container Registry (ACR).
+    It is designed to work within an automated process, utilizing an existing authenticated session provided by preceding Azure login actions.
 
 .PARAMETER moduleSourcePath
-    Path containing the PowerShell module folders.
+    The file system path that contains the PowerShell module directories. Each directory should include the module files (.psm1, .psd1).
 
 .PARAMETER acrName
-    Name of the Azure Container Registry
+    The name of the Azure Container Registry to which the modules will be deployed.
+
+.PARAMETER acrLoginServer
+    The login server URL of the Azure Container Registry. This URL is typically the ACR name suffixed by '.azurecr.io'.
+
+.PARAMETER resourceGroupName
+    The name of the Azure resource group that contains the Azure Container Registry.
 
 .EXAMPLE
-    .\deploy-ps-modules-to-acr.ps1 -moduleSourcePath '.\modules' -acrName 'yourazureacrname'
+    .\deploy-ps-modules-to-acr.ps1 -moduleSourcePath '.\modules' -acrName 'myACR' -acrLoginServer 'myACR.azurecr.io' -resourceGroupName 'MyResourceGroup'
+    Deploys all PowerShell modules found in the '.\modules' directory to the 'myACR' container registry in Azure.
 
 .NOTES
-    Ensure that that the Az PowerShell module is present
+    This function requires the Az module and an authenticated Azure session. Ensure that the azure/login GitHub action has been executed before running this script.
+    This script is intended for use as part of a GitHub Actions workflow.
 
-    This script is intended to be used as part of a GitHub composite action.  It is designed to execute after the actions/checkout and azure/login
-    GitHub actions have been executed as it leverages the repo structure and the existing logon context.
+.LINK
+    https://learn.microsoft.com/en-us/powershell/gallery/powershellget/how-to/use-acr-repository?view=powershellget-3.x
+
 #>
 
 function Deploy-PsModulesToAcr {
