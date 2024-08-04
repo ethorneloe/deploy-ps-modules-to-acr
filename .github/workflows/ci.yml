@@ -92,7 +92,7 @@ jobs:
       - name: Run action.yml
         uses: ./
         with:
-          acrname: '${{ steps.generate-acr-name.outputs.acrname }}'
+          acr-name: '${{ steps.generate-acr-name.outputs.acrname }}'
           module-source-path: '${{ github.workspace }}/powershell/tests/test-modules'
           resource-group-name: '${{ secrets.RESOURCE_GROUP_NAME }}'
 

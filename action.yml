@@ -3,7 +3,7 @@ name: "deploy-ps-modules-to-acr"
 description: "Discovers the powershell modules within your GitHub repo and deploys them to a Azure Container Registry using the version set in the .psd1 files"
 
 inputs:
-  acrname:
+  acr-name:
     description: "The name of your Azure Container Registry"
     required: true
   module-source-path:
@@ -19,7 +19,7 @@ runs:
   steps:
     - name: Install preview PSResourceGet module
       run: |
-        # Install preview PSResourceGet module for ACR support
+        # Install preview PSResourceGet module for acr support
 
         $previewVersion = Get-InstalledPSResource -Name 'Microsoft.PowerShell.PSResourceGet' -ErrorAction SilentlyContinue | Where-Object { $_.Prerelease -eq 'preview1' -and $_.Version.toString() -eq '1.1.0' }
         if ( !($previewVersion)) {
@@ -35,11 +35,11 @@ runs:
 
       shell: pwsh
 
-    - name: Upload Modules to ACR
+    - name: Upload Modules to acr
       run: |
-        # Execute main function
+        # Upload modules to acr
 
-        $acrName = '${{ inputs.acrname }}'
+        $acrName = '${{ inputs.acr-name }}'
         $moduleSourcePath = '${{ inputs.module-source-path }}'
         $resourceGroupName = '${{ inputs.resource-group-name }}'
         $acrLoginServer = az acr show --name $acrName --resource-group $resourceGroupName --query loginServer --output tsv
