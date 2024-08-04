@@ -57,12 +57,6 @@ jobs:
           $acrName = "deploypsmodulestoacr$random6Digits"
           Write-Output "acrname=$acrName" >> $env:GITHUB_OUTPUT
 
-          Get-InstalledPSResource
-
-          write-host "All USers"
-
-          Get-InstalledPSResource -scope AllUsers
-
         shell: pwsh
 
       - name: Create temp azure container registry
