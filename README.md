@@ -33,7 +33,7 @@ jobs:
       - name: Deploy PowerShell modules to acr
         uses: ethorneloe/deploy-ps-modules-to-acr@v1
         with:
-          acrname: ${{ secrets.AZURE_CONTAINER_REGISTRY_NAME}}
+          acr-name: ${{ secrets.AZURE_CONTAINER_REGISTRY_NAME}}
           resource-group-name: ${{ secrets.AZURE_RESOURCE_GROUP_NAME}}
           module-source-path: "./powershell/modules"
 ```
