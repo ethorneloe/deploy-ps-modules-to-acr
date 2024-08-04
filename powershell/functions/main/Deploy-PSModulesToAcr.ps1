@@ -77,6 +77,7 @@ function Deploy-PsModulesToAcr {
             $acrUrl = "https://$($acrLoginServer)"
             Register-PSResourceRepository -Name $acrName -Uri $acrUrl
         }
+        Get-PSResourceRepository | fl
     }
 
     # Publish modules to ACR
