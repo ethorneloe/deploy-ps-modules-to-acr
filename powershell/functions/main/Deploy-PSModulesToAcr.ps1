@@ -50,16 +50,23 @@ function Deploy-PsModulesToAcr {
     }
 
     # Make sure the latest version of PSResourceGet is available (1.1.0-preview1 is required as of Aug 2024)
+
+    $PSResourceModuleName = 'Microsoft.PowerShell.PSResourceGet'
+    $PSResourceModuleVersion = '1.1.0-preview1'
+
     $installPSResourceSplat = @{
         Repository = 'PSGallery'
-        Name       = 'Microsoft.PowerShell.PSResourceGet'
-        Version    = '1.1.0-preview1'
+        Name       = $PSResourceModuleName
+        Version    = $PSResourceModuleVersion
     }
 
     $previewVersion = Get-InstalledPSResource -Name 'Microsoft.PowerShell.PSResourceGet' -ErrorAction SilentlyContinue | Where-Object { $_.Prerelease -eq 'preview1' -and $_.Version.toString() -eq '1.1.0' }
     if ( !($previewVersion)) {
         Write-Information "Installing Microsoft.PowerShell.PSResourceGet v1.1.0 preview1"
-        Install-PSResource @installPSResourceSplat -TrustRepository -WhatIf:$false
+        Install-PSResource @installPSResourceSplat -TrustRepository -WhatIf:$false -Scope CurrentUser -AllowPrerelease -Force
+
+        Write-Information "Importing Microsoft.PowerShell.PSResourceGet v1.1.0 preview1 into the current user session"
+        Import-Module -Name $PSResourceModuleName -RequiredVersion $PSResourceModuleVersion
     }
 
     Write-Information "Using module source path: $moduleSourcePath"
