@@ -78,7 +78,7 @@ function Deploy-PsModulesToAcr {
             write-Information $acrUrl
             Register-PSResourceRepository -Name $acrName -Uri $acrUrl
         }
-        $repos = Get-PSResourceRepository | fl
+        $repos = Get-PSResourceRepository | Select-Object Name, URI | ConvertTo-Json
         Write-Information $repos
     }
 
