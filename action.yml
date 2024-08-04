@@ -1,6 +1,6 @@
 name: "deploy-ps-modules-to-acr"
 
-description: "Discovers the powershell modules within your GitHub repo and deploys them to a Azure Container Registry using the version set in the .psd1 files"
+description: "Discovers the powershell modules within your GitHub repo and deploys them to an Azure Container Registry."
 
 inputs:
   acr-name:
