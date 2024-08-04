@@ -53,6 +53,7 @@ function Deploy-PsModulesToAcr {
 
     $PSResourceModuleName = 'Microsoft.PowerShell.PSResourceGet'
     $PSResourceModuleVersion = '1.1.0-preview1'
+    $PSResourceModuleVersionImport = '1.1.0'
 
     $installPSResourceSplat = @{
         Repository = 'PSGallery'
@@ -66,7 +67,7 @@ function Deploy-PsModulesToAcr {
         Install-PSResource @installPSResourceSplat -TrustRepository -WhatIf:$false -Scope CurrentUser
 
         Write-Information "Importing Microsoft.PowerShell.PSResourceGet v1.1.0 preview1 into the current user session"
-        Import-Module -Name $PSResourceModuleName -RequiredVersion $PSResourceModuleVersion
+        Import-Module -Name $PSResourceModuleName -RequiredVersion $PSResourceModuleVersionImport
     }
 
     Write-Information "Using module source path: $moduleSourcePath"
