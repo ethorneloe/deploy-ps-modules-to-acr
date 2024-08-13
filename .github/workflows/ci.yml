@@ -65,7 +65,7 @@ jobs:
         id: create-temp-acr
         uses: azure/cli@v2
         with:
-          azcliversion: latest
+          azcliversion: cbl-mariner2.0
           inlineScript: |
             # Create and register temp azure container registry
 
@@ -131,7 +131,7 @@ jobs:
         if: always()
         uses: azure/cli@v2
         with:
-          azcliversion: latest
+          azcliversion: cbl-mariner2.0
           inlineScript: |
             # Remove temp ACR
             az acr list --resource-group "$resourceGroupName" --query "[].name" -o tsv | while read acrName
