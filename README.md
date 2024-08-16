@@ -41,7 +41,7 @@ jobs:
 ```
 
 # Use Case
-Changes to your custom Powershell script modules need to be deployed to an `acr` (Azure Container Registry) based on the `ModuleVersion` set in the .psd1 files of the modules. For example, internally developed PowerShell modules that are required to be kept as internal or private repos, and these need to be available for use by other Azure resources such as Azure functions or container apps jobs on the same private vnet as the `acr`.  These Azure resources can then pull down the versioned module using a managed identity and rbac using `Install-PSResource`.
+Changes to your custom Powershell script modules need to be deployed to an `acr` (Azure Container Registry) based on the `ModuleVersion` set in the .psd1 files of the modules. For example, internally developed PowerShell modules that are required to be kept as internal or private repos, and these need to be available for use by other Azure resources on the same private vnet as the `acr`.  These Azure resources can then pull down the versioned module using a managed identity and rbac using `Install-PSResource`.
 
 # Requirements
 - An Azure subscription with an acr configured.
