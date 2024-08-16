@@ -4,6 +4,8 @@
 
 A GitHub composite action for deploying PowerShell script modules contained within your repo into an Azure Container Registry, where they can then be consumed by other Azure resources using `Install-PSResource`
 
+*Note that this action uses version `1.1.0-preview1` of the `Microsoft.PowerShell.PSResourceGet` module.*
+
 # Example
 ```yaml
 name: Test Deployment
